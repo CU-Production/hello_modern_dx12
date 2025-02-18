@@ -1,8 +1,15 @@
 #include "D3D12Lite.h"
 #include "Shaders/Shared.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_win32.h"
+#include "imgui/imgui_impl_dx12.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+    ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam);
+
     switch (umessage)
     {
         case WM_KEYDOWN:
@@ -38,6 +45,8 @@ public:
         InitializeTriangleResources();
 
         InitializeMeshResources();
+
+        InitializeImGui(windowHandle);
     }
 
     ~Renderer()
@@ -62,6 +71,9 @@ public:
         {
             mDevice->DestroyBuffer(std::move(mMeshConstantBuffers[frameIndex]));
         }
+
+        ImGui_ImplDX12_Shutdown();
+        ImGui_ImplWin32_Shutdown();
 
         mDevice->DestroyContext(std::move(mGraphicsContext));
         mDevice = nullptr;
@@ -264,6 +276,27 @@ public:
     mMeshPSO = mDevice->CreateGraphicsPipeline(meshPipelineDesc, meshResourceLayout);
     }
 
+    void InitializeImGui(HWND windowHandle)
+    {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::StyleColorsDark();
+
+        D3D12Lite::Descriptor descriptor = mDevice->GetImguiDescriptor(0);
+        D3D12Lite::Descriptor descriptor2 = mDevice->GetImguiDescriptor(1);
+
+        ImGui_ImplWin32_Init(windowHandle);
+        ImGui_ImplDX12_Init(mDevice->GetDevice()
+            , D3D12Lite::NUM_FRAMES_IN_FLIGHT
+            , DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
+            , nullptr
+            , descriptor.mCPUHandle
+            , descriptor.mGPUHandle
+            , descriptor2.mCPUHandle
+            , descriptor2.mGPUHandle);
+    }
+
     void RenderClearColorTutorial()
     {
         mDevice->BeginFrame();
@@ -370,11 +403,48 @@ public:
         mDevice->Present();
     }
 
+    void RenderImGui()
+    {
+        mDevice->BeginFrame();
+
+        ImGui_ImplDX12_NewFrame();
+        ImGui_ImplWin32_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+        ImGui::Render();
+
+        D3D12Lite::TextureResource& backBuffer = mDevice->GetCurrentBackBuffer();
+
+        mGraphicsContext->Reset();
+
+        mGraphicsContext->AddBarrier(backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mGraphicsContext->FlushBarriers();
+
+        mGraphicsContext->ClearRenderTarget(backBuffer, Color(0.3f, 0.3f, 0.8f));
+
+        D3D12Lite::PipelineInfo pipeline;
+        pipeline.mPipeline = nullptr;
+        pipeline.mRenderTargets.push_back(&backBuffer);
+
+        mGraphicsContext->SetPipeline(pipeline);
+        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGraphicsContext->GetCommandList());
+
+        mGraphicsContext->AddBarrier(backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+        mGraphicsContext->FlushBarriers();
+
+        mDevice->SubmitContextWork(*mGraphicsContext);
+
+        mDevice->EndFrame();
+        mDevice->Present();
+    }
+
     void Render()
     {
         // RenderClearColorTutorial();
         // RenderTriangleTutorial();
-        RenderMeshTutorial();
+        // RenderMeshTutorial();
+        RenderImGui();
     }
 
 private:
