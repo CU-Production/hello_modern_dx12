@@ -31,6 +31,9 @@ add_library(D3D12Lite D3D12Lite.cpp)
 target_include_directories(D3D12Lite PUBLIC .)
 target_link_libraries(D3D12Lite PUBLIC
         agilitysdk
+        d3d12
+        dxgi
+        dxguid
         D3D12MemoryAllocator
         dxc
         DXTex

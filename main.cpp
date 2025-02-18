@@ -26,6 +26,47 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
     }
 }
 
+class Renderer
+{
+public:
+    Renderer(HWND windowHandle, D3D12Lite::Uint2 screenSize)
+    {
+        mDevice = std::make_unique<D3D12Lite::Device>(windowHandle, screenSize);
+        mGraphicsContext = mDevice->CreateGraphicsContext();
+    }
+
+    void RenderClearColorTutorial()
+    {
+        mDevice->BeginFrame();
+
+        D3D12Lite::TextureResource& backBuffer = mDevice->GetCurrentBackBuffer();
+
+        mGraphicsContext->Reset();
+
+        mGraphicsContext->AddBarrier(backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mGraphicsContext->FlushBarriers();
+
+        mGraphicsContext->ClearRenderTarget(backBuffer, Color(0.3f, 0.3f, 0.8f));
+
+        mGraphicsContext->AddBarrier(backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+        mGraphicsContext->FlushBarriers();
+
+        mDevice->SubmitContextWork(*mGraphicsContext);
+
+        mDevice->EndFrame();
+        mDevice->Present();
+    }
+
+    void Render()
+    {
+        RenderClearColorTutorial();
+    }
+
+private:
+    std::unique_ptr<D3D12Lite::Device> mDevice;
+    std::unique_ptr<D3D12Lite::GraphicsContext> mGraphicsContext;
+};
+
 int main()
 {
     std::string applicationName = "D3D12 Tutorial";
@@ -55,6 +96,8 @@ int main()
     SetFocus(windowHandle);
     ShowCursor(TRUE);
 
+    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(windowHandle, windowSize);
+
     bool shouldExit = false;
     while(!shouldExit)
     {
@@ -69,7 +112,11 @@ int main()
         {
             shouldExit = true;
         }
+
+        renderer->Render();
     }
+
+    renderer = nullptr;
 
     DestroyWindow(windowHandle);
     windowHandle = nullptr;

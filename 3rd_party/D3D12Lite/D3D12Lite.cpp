@@ -1098,7 +1098,7 @@ namespace D3D12Lite
         samplerDescs[0].BorderColor[0] = samplerDescs[0].BorderColor[1] = samplerDescs[0].BorderColor[2] = samplerDescs[0].BorderColor[3] = 0.0f;
         samplerDescs[0].MipLODBias = 0.0f;
         samplerDescs[0].MaxAnisotropy = 16;
-        samplerDescs[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
+        samplerDescs[0].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         samplerDescs[0].MinLOD = 0;
         samplerDescs[0].MaxLOD = D3D12_FLOAT32_MAX;
 
@@ -1109,7 +1109,7 @@ namespace D3D12Lite
         samplerDescs[1].BorderColor[0] = samplerDescs[1].BorderColor[1] = samplerDescs[1].BorderColor[2] = samplerDescs[1].BorderColor[3] = 0.0f;
         samplerDescs[1].MipLODBias = 0.0f;
         samplerDescs[1].MaxAnisotropy = 16;
-        samplerDescs[1].ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
+        samplerDescs[1].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         samplerDescs[1].MinLOD = 0;
         samplerDescs[1].MaxLOD = D3D12_FLOAT32_MAX;
 
@@ -1120,7 +1120,7 @@ namespace D3D12Lite
         samplerDescs[2].BorderColor[0] = samplerDescs[2].BorderColor[1] = samplerDescs[2].BorderColor[2] = samplerDescs[2].BorderColor[3] = 0.0f;
         samplerDescs[2].MipLODBias = 0.0f;
         samplerDescs[2].MaxAnisotropy = 0;
-        samplerDescs[2].ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
+        samplerDescs[2].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         samplerDescs[2].MinLOD = 0;
         samplerDescs[2].MaxLOD = D3D12_FLOAT32_MAX;
 
@@ -1131,7 +1131,7 @@ namespace D3D12Lite
         samplerDescs[3].BorderColor[0] = samplerDescs[3].BorderColor[1] = samplerDescs[3].BorderColor[2] = samplerDescs[3].BorderColor[3] = 0.0f;
         samplerDescs[3].MipLODBias = 0.0f;
         samplerDescs[3].MaxAnisotropy = 0;
-        samplerDescs[3].ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
+        samplerDescs[3].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         samplerDescs[3].MinLOD = 0;
         samplerDescs[3].MaxLOD = D3D12_FLOAT32_MAX;
 
@@ -1142,7 +1142,7 @@ namespace D3D12Lite
         samplerDescs[4].BorderColor[0] = samplerDescs[4].BorderColor[1] = samplerDescs[4].BorderColor[2] = samplerDescs[4].BorderColor[3] = 0.0f;
         samplerDescs[4].MipLODBias = 0.0f;
         samplerDescs[4].MaxAnisotropy = 0;
-        samplerDescs[4].ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
+        samplerDescs[4].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         samplerDescs[4].MinLOD = 0;
         samplerDescs[4].MaxLOD = D3D12_FLOAT32_MAX;
 
@@ -1153,7 +1153,7 @@ namespace D3D12Lite
         samplerDescs[5].BorderColor[0] = samplerDescs[5].BorderColor[1] = samplerDescs[5].BorderColor[2] = samplerDescs[5].BorderColor[3] = 0.0f;
         samplerDescs[5].MipLODBias = 0.0f;
         samplerDescs[5].MaxAnisotropy = 0;
-        samplerDescs[5].ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
+        samplerDescs[5].ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
         samplerDescs[5].MinLOD = 0;
         samplerDescs[5].MaxLOD = D3D12_FLOAT32_MAX;
 
