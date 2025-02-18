@@ -16,5 +16,6 @@ add_custom_command(TARGET hello_modern_dx12 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy           -t "$<TARGET_FILE_DIR:hello_modern_dx12>/" "${DXC_BIN_DIR}/dxil.dll"
         COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:hello_modern_dx12>/Shaders/Compiled"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Shaders" "$<TARGET_FILE_DIR:hello_modern_dx12>/Shaders"
+        COMMAND ${CMAKE_COMMAND} -E copy           -t "$<TARGET_FILE_DIR:hello_modern_dx12>/" "${CMAKE_CURRENT_SOURCE_DIR}/wood.dds"
         COMMAND_EXPAND_LISTS
 )
