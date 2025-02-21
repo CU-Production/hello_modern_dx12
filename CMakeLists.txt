@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 add_subdirectory(3rd_party)
 
 add_executable(hello_modern_dx12 main.cpp)
+target_precompile_headers(hello_modern_dx12 PRIVATE stdafx.h)
 target_link_libraries(hello_modern_dx12 D3D12Lite)
 add_custom_command(TARGET hello_modern_dx12 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:hello_modern_dx12>/D3D12/"
