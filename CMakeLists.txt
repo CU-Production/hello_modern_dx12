@@ -7,7 +7,7 @@ add_subdirectory(3rd_party)
 
 add_executable(hello_modern_dx12 main.cpp)
 target_precompile_headers(hello_modern_dx12 PRIVATE stdafx.h)
-target_link_libraries(hello_modern_dx12 D3D12Lite)
+target_link_libraries(hello_modern_dx12 PRIVATE glfw D3D12Lite)
 add_custom_command(TARGET hello_modern_dx12 POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:hello_modern_dx12>/D3D12/"
         COMMAND ${CMAKE_COMMAND} -E copy           -t "$<TARGET_FILE_DIR:hello_modern_dx12>/D3D12/" ${AGILITYSDK_D3D12CORE_DLL}
