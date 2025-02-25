@@ -20,7 +20,7 @@ target_link_libraries(DXTex PRIVATE agilitysdk)
 file(GLOB IMGUI_SRC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/*.cpp)
 add_library(imgui ${IMGUI_SRC})
 target_include_directories(imgui PUBLIC imgui)
-target_link_libraries(imgui PRIVATE agilitysdk)
+target_link_libraries(imgui PRIVATE agilitysdk glfw)
 
 # SimpleMath
 add_library(SimpleMath INTERFACE)

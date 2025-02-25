@@ -1,6 +1,9 @@
 #include "GLFW/glfw3.h"
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "GLFW/glfw3native.h"
+#include "imgui.h"
+#include "imgui_impl_dx12.h"
+#include "imgui_impl_glfw.h"
 #include "Shaders/Shared.h"
 
 #define SCREEN_WIDTH  800
@@ -9,12 +12,13 @@
 class Renderer
 {
 public:
-    Renderer(HWND windowHandle, D3D12Lite::Uint2 screenSize) {
-        mDevice = std::make_unique<D3D12Lite::Device>(windowHandle, screenSize);
+    Renderer(GLFWwindow* window, D3D12Lite::Uint2 screenSize) {
+        mDevice = std::make_unique<D3D12Lite::Device>(glfwGetWin32Window(window), screenSize);
         mGraphicsContext = mDevice->CreateGraphicsContext();
 
         InitializeTriangleResources();
         InitializeMeshResources();
+        InitializeImGui(window);
     }
 
     ~Renderer() {
@@ -39,6 +43,9 @@ public:
         {
             mDevice->DestroyBuffer(std::move(mMeshConstantBuffers[frameIndex]));
         }
+
+        ImGui_ImplDX12_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
 
         mDevice->DestroyContext(std::move(mGraphicsContext));
         mDevice = nullptr;
@@ -236,6 +243,19 @@ public:
         mMeshPSO = mDevice->CreateGraphicsPipeline(meshPipelineDesc, meshResourceLayout);
     }
 
+    void InitializeImGui(GLFWwindow* window) {
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        ImGui::StyleColorsDark();
+
+        D3D12Lite::Descriptor descriptor = mDevice->GetImguiDescriptor(0);
+        D3D12Lite::Descriptor descriptor2 = mDevice->GetImguiDescriptor(1);
+
+        ImGui_ImplGlfw_InitForOther(window, true);
+        ImGui_ImplDX12_Init(mDevice->GetDevice(), D3D12Lite::NUM_FRAMES_IN_FLIGHT, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, nullptr, descriptor.mCPUHandle, descriptor.mGPUHandle, descriptor2.mCPUHandle, descriptor2.mGPUHandle);
+    }
+
     void RenderClearColorTutorial() const {
         mDevice->BeginFrame();
 
@@ -335,10 +355,45 @@ public:
         mDevice->Present();
     }
 
+    void RenderImGui() {
+        mDevice->BeginFrame();
+
+        ImGui_ImplDX12_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::ShowDemoWindow();
+        ImGui::Render();
+
+        D3D12Lite::TextureResource& backBuffer = mDevice->GetCurrentBackBuffer();
+
+        mGraphicsContext->Reset();
+        mGraphicsContext->AddBarrier(backBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        mGraphicsContext->FlushBarriers();
+
+        mGraphicsContext->ClearRenderTarget(backBuffer, Color(0.3f, 0.3f, 0.8f));
+
+        D3D12Lite::PipelineInfo pipeline{};
+        pipeline.mPipeline = nullptr;
+        pipeline.mRenderTargets.push_back(&backBuffer);
+
+        mGraphicsContext->SetPipeline(pipeline);
+        ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGraphicsContext->GetCommandList());
+
+        mGraphicsContext->AddBarrier(backBuffer, D3D12_RESOURCE_STATE_PRESENT);
+        mGraphicsContext->FlushBarriers();
+
+        mDevice->SubmitContextWork(*mGraphicsContext);
+
+        mDevice->EndFrame();
+        mDevice->Present();
+    }
+
     void Render() {
         // RenderClearColorTutorial();
         // RenderTriangleTutorial();
-        RenderMeshTutorial();
+        // RenderMeshTutorial();
+        RenderImGui();
     }
 
 private:
@@ -369,7 +424,7 @@ int main() {
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "DX12", NULL, NULL);
 
-    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(glfwGetWin32Window(window), D3D12Lite::Uint2(SCREEN_WIDTH, SCREEN_HEIGHT));
+    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(window, D3D12Lite::Uint2(SCREEN_WIDTH, SCREEN_HEIGHT));
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
