@@ -164,8 +164,7 @@ public:
 
         mDevice->GetUploadContextForCurrentFrame().AddBufferUpload(std::move(bufferUpload));
 
-        // mWoodTexture = mDevice->CreateTextureFromFile("Wood.dds");
-        mWoodTexture = mDevice->CreateTextureFromFile("Default_albedo.dds");
+        mWoodTexture = mDevice->CreateTextureFromFile("Wood.dds");
 
         MeshConstants meshConstants{};
         meshConstants.vertexBufferIndex = mMeshVertexBuffer->mDescriptorHeapIndex;
