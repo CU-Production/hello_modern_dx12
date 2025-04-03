@@ -248,6 +248,8 @@ public:
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO();
         ImGui::StyleColorsDark();
+        // ImGui::StyleColorsLight();
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
         D3D12Lite::Descriptor descriptor = mDevice->GetImguiDescriptor(0);
         D3D12Lite::Descriptor descriptor2 = mDevice->GetImguiDescriptor(1);
