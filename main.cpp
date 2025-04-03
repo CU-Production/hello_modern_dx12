@@ -464,20 +464,13 @@ private:
     std::unique_ptr<D3D12Lite::PipelineStateObject> mMeshPSO;
 };
 
-std::unique_ptr<Renderer> renderer;
-
-void windows_size_callback(GLFWwindow* window, int width, int height) {
-    renderer = nullptr;
-    renderer = std::make_unique<Renderer>(window, D3D12Lite::Uint2(width, height));
-}
-
 int main() {
     glfwInit();
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "DX12", NULL, NULL);
-    glfwSetWindowSizeCallback(window, windows_size_callback);
 
-    renderer = std::make_unique<Renderer>(window, D3D12Lite::Uint2(SCREEN_WIDTH, SCREEN_HEIGHT));
+    std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(window, D3D12Lite::Uint2(SCREEN_WIDTH, SCREEN_HEIGHT));
 
     glfwSetWindowUserPointer(window, renderer.get());
 
