@@ -250,6 +250,8 @@ public:
         ImGui::StyleColorsDark();
         // ImGui::StyleColorsLight();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
         D3D12Lite::Descriptor descriptor = mDevice->GetImguiDescriptor(0);
         D3D12Lite::Descriptor descriptor2 = mDevice->GetImguiDescriptor(1);
