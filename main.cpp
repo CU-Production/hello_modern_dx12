@@ -329,11 +329,12 @@ public:
         static float rotation = 0.0f;
         rotation += 0.01f;
 
-        if (mMeshVertexBuffer->mIsReady && mWoodTexture->mIsReady && mMissingTexture->mIsReady) {
+        if (mMeshVertexBuffer->mIsReady && mMissingTexture->mIsReady) {
             MeshConstants meshConstants{};
             meshConstants.vertexBufferIndex = mMeshVertexBuffer->mDescriptorHeapIndex;
-            meshConstants.textureIndex = mWoodTexture->mDescriptorHeapIndex;
-            // meshConstants.textureIndex = mMissingTexture->mDescriptorHeapIndex;
+            meshConstants.textureIndex = mMissingTexture->mDescriptorHeapIndex;
+            if (mWoodTexture->mIsReady)
+                meshConstants.textureIndex = mWoodTexture->mDescriptorHeapIndex;
             meshConstants.worldMatrix = Matrix::CreateRotationY(rotation);
 
             mMeshConstantBuffers[mDevice->GetFrameId()]->SetMappedData(&meshConstants, sizeof(MeshConstants));
