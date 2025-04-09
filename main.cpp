@@ -32,6 +32,7 @@ public:
 
         mDevice->DestroyTexture(std::move(mDepthBuffer));
         mDevice->DestroyTexture(std::move(mWoodTexture));
+        mDevice->DestroyTexture(std::move(mMissingTexture));
         mDevice->DestroyBuffer(std::move(mMeshVertexBuffer));
         mDevice->DestroyBuffer(std::move(mMeshPassConstantBuffer));
 
@@ -164,7 +165,8 @@ public:
 
         mDevice->GetUploadContextForCurrentFrame().AddBufferUpload(std::move(bufferUpload));
 
-        mWoodTexture = mDevice->CreateTextureFromFile("Wood.dds");
+        mWoodTexture = mDevice->CreateTextureFromFile("Wood.dds", true);
+        mMissingTexture = mDevice->CreateTextureFromFile("missing_tex.png", false);
 
         MeshConstants meshConstants{};
         meshConstants.vertexBufferIndex = mMeshVertexBuffer->mDescriptorHeapIndex;
@@ -327,10 +329,11 @@ public:
         static float rotation = 0.0f;
         rotation += 0.01f;
 
-        if (mMeshVertexBuffer->mIsReady && mWoodTexture->mIsReady) {
+        if (mMeshVertexBuffer->mIsReady && mWoodTexture->mIsReady && mMissingTexture->mIsReady) {
             MeshConstants meshConstants{};
             meshConstants.vertexBufferIndex = mMeshVertexBuffer->mDescriptorHeapIndex;
             meshConstants.textureIndex = mWoodTexture->mDescriptorHeapIndex;
+            // meshConstants.textureIndex = mMissingTexture->mDescriptorHeapIndex;
             meshConstants.worldMatrix = Matrix::CreateRotationY(rotation);
 
             mMeshConstantBuffers[mDevice->GetFrameId()]->SetMappedData(&meshConstants, sizeof(MeshConstants));
@@ -439,8 +442,8 @@ public:
     void Render() {
         // RenderClearColorTutorial();
         // RenderTriangleTutorial();
-        // RenderMeshTutorial();
-        RenderImGui();
+        RenderMeshTutorial();
+        // RenderImGui();
     }
 
 private:
@@ -456,6 +459,7 @@ private:
 
     std::unique_ptr<D3D12Lite::TextureResource> mDepthBuffer;
     std::unique_ptr<D3D12Lite::TextureResource> mWoodTexture;
+    std::unique_ptr<D3D12Lite::TextureResource> mMissingTexture;
     std::unique_ptr<D3D12Lite::BufferResource> mMeshVertexBuffer;
     std::array<std::unique_ptr<D3D12Lite::BufferResource>, D3D12Lite::NUM_FRAMES_IN_FLIGHT> mMeshConstantBuffers;
     std::unique_ptr<D3D12Lite::BufferResource> mMeshPassConstantBuffer;

@@ -1588,7 +1588,7 @@ namespace D3D12Lite
         return newTexture;
     }
 
-    std::unique_ptr<TextureResource> Device::CreateTextureFromFile(const std::string& texturePath)
+    std::unique_ptr<TextureResource> Device::CreateTextureFromFile(const std::string& texturePath, bool isDDSFormat)
     {
         auto s2ws = [](const std::string& s)
         {
@@ -1604,7 +1604,11 @@ namespace D3D12Lite
         };
 
         std::unique_ptr<DirectX::ScratchImage> imageData = std::make_unique<DirectX::ScratchImage>();
-        HRESULT loadResult = DirectX::LoadFromDDSFile(s2ws(texturePath).c_str(), DirectX::DDS_FLAGS_NONE, nullptr, *imageData);
+        HRESULT loadResult;
+        if (isDDSFormat)
+            loadResult = DirectX::LoadFromDDSFile(s2ws(texturePath).c_str(), DirectX::DDS_FLAGS_NONE, nullptr, *imageData);
+        else
+            loadResult = DirectX::LoadFromWICFile(s2ws(texturePath).c_str(), DirectX::WIC_FLAGS_NONE, nullptr, *imageData);
         assert(loadResult == S_OK);
 
         const DirectX::TexMetadata& textureMetaData = imageData->GetMetadata();

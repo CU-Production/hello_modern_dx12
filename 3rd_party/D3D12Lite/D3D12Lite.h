@@ -624,7 +624,7 @@ namespace D3D12Lite
 
         std::unique_ptr<BufferResource> CreateBuffer(const BufferCreationDesc& desc);
         std::unique_ptr<TextureResource> CreateTexture(const TextureCreationDesc& desc);
-        std::unique_ptr<TextureResource> CreateTextureFromFile(const std::string& texturePath);
+        std::unique_ptr<TextureResource> CreateTextureFromFile(const std::string& texturePath, bool isDDSFormat);
         std::unique_ptr<Shader> CreateShader(const ShaderCreationDesc& desc);
         std::unique_ptr<PipelineStateObject> CreateGraphicsPipeline(const GraphicsPipelineDesc& desc, const PipelineResourceLayout& layout);
         std::unique_ptr<PipelineStateObject> CreateComputePipeline(const ComputePipelineDesc& desc, const PipelineResourceLayout& layout);
