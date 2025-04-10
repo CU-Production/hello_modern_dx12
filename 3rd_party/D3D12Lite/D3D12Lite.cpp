@@ -4,6 +4,7 @@
 #include "dxc/inc/dxcapi.h"
 #include <dxgidebug.h>
 #include <numeric>
+#include <algorithm>
 
 extern "C" { __declspec(dllexport) extern const UINT D3D12SDKVersion = 615; }
 extern "C" { __declspec(dllexport) extern const char* D3D12SDKPath = ".\\D3D12\\"; }
@@ -1588,7 +1589,7 @@ namespace D3D12Lite
         return newTexture;
     }
 
-    std::unique_ptr<TextureResource> Device::CreateTextureFromFile(const std::string& texturePath, bool isDDSFormat)
+    std::unique_ptr<TextureResource> Device::CreateTextureFromFile(const std::string& texturePath)
     {
         auto s2ws = [](const std::string& s)
         {
@@ -1603,11 +1604,28 @@ namespace D3D12Lite
             return r;
         };
 
+        auto getextname = [](const std::string& filename)
+        {
+            size_t pos = filename.find_last_of('.');
+            if (pos != std::string::npos) {
+                auto res =  filename.substr(pos + 1);
+                for(auto& c : res)
+                    c = tolower(c);
+                return res;
+            }
+            return std::string();
+        };
+
         std::unique_ptr<DirectX::ScratchImage> imageData = std::make_unique<DirectX::ScratchImage>();
+        std::string extname = getextname(texturePath);
         HRESULT loadResult;
-        if (isDDSFormat)
+        if (extname == "dds")
             loadResult = DirectX::LoadFromDDSFile(s2ws(texturePath).c_str(), DirectX::DDS_FLAGS_NONE, nullptr, *imageData);
-        else
+        else if (extname == "hdr")
+            loadResult = DirectX::LoadFromHDRFile(s2ws(texturePath).c_str(), nullptr, *imageData);
+        else if (extname == "tga")
+            loadResult = DirectX::LoadFromTGAFile(s2ws(texturePath).c_str(), DirectX::TGA_FLAGS_NONE, nullptr, *imageData);
+        else // last try WIC format BMP,JPEG,PNG,WEBP .etc
             loadResult = DirectX::LoadFromWICFile(s2ws(texturePath).c_str(), DirectX::WIC_FLAGS_NONE, nullptr, *imageData);
         assert(loadResult == S_OK);
 

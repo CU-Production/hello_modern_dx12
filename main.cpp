@@ -165,8 +165,8 @@ public:
 
         mDevice->GetUploadContextForCurrentFrame().AddBufferUpload(std::move(bufferUpload));
 
-        mWoodTexture = mDevice->CreateTextureFromFile("Wood.dds", true);
-        mMissingTexture = mDevice->CreateTextureFromFile("missing_tex.png", false);
+        mWoodTexture = mDevice->CreateTextureFromFile("Wood.dds");
+        mMissingTexture = mDevice->CreateTextureFromFile("missing_tex.png");
 
         MeshConstants meshConstants{};
         meshConstants.vertexBufferIndex = mMeshVertexBuffer->mDescriptorHeapIndex;

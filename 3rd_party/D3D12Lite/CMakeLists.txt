@@ -14,7 +14,7 @@ set(DXC_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dxc/bin/x64 CACHE INTERNAL "")
 file(GLOB DXTEX_SRC ${CMAKE_CURRENT_SOURCE_DIR}/DXTex/*.cpp)
 add_library(DXTex ${DXTEX_SRC})
 target_include_directories(DXTex PUBLIC DXTex)
-target_link_libraries(DXTex PRIVATE agilitysdk)
+target_link_libraries(DXTex PRIVATE agilitysdk agilitysdk_d3dx12)
 
 # imgui
 file(GLOB IMGUI_SRC ${CMAKE_CURRENT_SOURCE_DIR}/imgui/*.cpp)

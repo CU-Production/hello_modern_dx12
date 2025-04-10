@@ -17,7 +17,7 @@ set(AGILITYSDK_DIR ${agilitysdk_fetch_SOURCE_DIR} CACHE INTERNAL "")
 
 add_library(agilitysdk_d3dx12 STATIC)
 target_link_libraries(agilitysdk_d3dx12 PRIVATE agilitysdk)
-target_include_directories(agilitysdk_d3dx12 PRIVATE "${agilitysdk_fetch_SOURCE_DIR}/build/native/include/d3dx12/")
+target_include_directories(agilitysdk_d3dx12 PUBLIC "${agilitysdk_fetch_SOURCE_DIR}/build/native/include/d3dx12/")
 target_sources(agilitysdk_d3dx12 PRIVATE "${agilitysdk_fetch_SOURCE_DIR}/build/native/src/d3dx12/d3dx12_property_format_table.cpp"
         "${agilitysdk_fetch_SOURCE_DIR}/build/native/include/d3dx12/d3dx12.h"
         "${agilitysdk_fetch_SOURCE_DIR}/build/native/include/d3dx12/d3dx12_barriers.h"
