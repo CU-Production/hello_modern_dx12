@@ -1742,8 +1742,8 @@ namespace D3D12Lite
         arguments.push_back(target);
         arguments.push_back(L"-Zi"); // DXC_ARG_DEBUG
         arguments.push_back(L"-WX");
-        arguments.push_back(L"-Od"); // DXC_ARG_SKIP_OPTIMIZATIONS
-        // arguments.push_back(L"-Qstrip_reflect");
+        // arguments.push_back(L"-Od"); // DXC_ARG_SKIP_OPTIMIZATIONS
+        arguments.push_back(L"-Qstrip_reflect");
 
         IDxcResult* compilationResults = nullptr;
         dxcCompiler->Compile(&sourceBuffer, arguments.data(), static_cast<uint32_t>(arguments.size()), dxcIncludeHandler, IID_PPV_ARGS(&compilationResults));
@@ -1795,6 +1795,20 @@ namespace D3D12Lite
             fclose(fp);
         }
 
+        IDxcBlob* shaderHash;
+        compilationResults->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shaderHash), nullptr);
+        if (shaderHash != nullptr)
+        {
+            DxcShaderHash* pHashBuf = (DxcShaderHash*)shaderHash->GetBufferPointer();
+
+            wprintf(L"Shader Hash Flags: 0x%X\n", pHashBuf->Flags);
+            wprintf(L"Shader Hash: ");
+            for (int i = 0; i < 16; i++) {
+                wprintf(L"%02X", pHashBuf->HashDigest[i]);
+            }
+            wprintf(L"\n");
+        }
+
         IDxcBlob* pdbBlob = nullptr;
         compilationResults->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdbBlob), nullptr);
         {
@@ -1808,22 +1822,16 @@ namespace D3D12Lite
             fclose(fp);
         }
 
-        SafeRelease(shaderBlob);
+        // SafeRelease(shaderBlob);
         SafeRelease(pdbBlob);
         SafeRelease(errors);
         SafeRelease(compilationResults);
         SafeRelease(dxcIncludeHandler);
         SafeRelease(dxcCompiler);
+        SafeRelease(dxcUtils);
 
         std::unique_ptr<Shader> shader = std::make_unique<Shader>();
-        // shader->mShaderBlob = shaderBlob;
-
-        // load file to active renderdoc shader debug feature
-        IDxcBlob* dxilShaderBlob;
-        dxcUtils->LoadFile(dxilPath.c_str(), nullptr, (IDxcBlobEncoding**)&dxilShaderBlob);
-        shader->mShaderBlob = dxilShaderBlob;
-
-        SafeRelease(dxcUtils);
+        shader->mShaderBlob = shaderBlob;
 
         return shader;
     }
