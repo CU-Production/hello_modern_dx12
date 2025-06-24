@@ -1799,14 +1799,32 @@ namespace D3D12Lite
         compilationResults->GetOutput(DXC_OUT_SHADER_HASH, IID_PPV_ARGS(&shaderHash), nullptr);
         if (shaderHash != nullptr)
         {
-            DxcShaderHash* pHashBuf = (DxcShaderHash*)shaderHash->GetBufferPointer();
+            DxcShaderHash* hashBuf = (DxcShaderHash*)shaderHash->GetBufferPointer();
 
-            wprintf(L"Shader Hash Flags: 0x%X\n", pHashBuf->Flags);
-            wprintf(L"Shader Hash: ");
-            for (int i = 0; i < 16; i++) {
-                wprintf(L"%02X", pHashBuf->HashDigest[i]);
+            wchar_t fileName[33];
+            fileName[32] = '\0';
+            static const char hex_table[] = "0123456789abcdef";
+            for (size_t i = 0; i < 16; ++i) {
+                fileName[i*2+0] = hex_table[hashBuf->HashDigest[i] >> 4];
+                fileName[i*2+1] = hex_table[hashBuf->HashDigest[i] & 0x0F];
             }
-            wprintf(L"\n");
+
+            // wprintf(L"Shader Hash: %s\n", fileName);
+            int i = pdbPath.length() - 1;
+            int last_sep = -1;
+            while (i >= 0) {
+                if (pdbPath[i] == '/' || pdbPath[i] == '\\') {
+                    last_sep = i;
+                    break;
+                }
+                i--;
+            }
+            if (last_sep > 0) {
+                pdbPath.erase(pdbPath.end() - (pdbPath.length() - last_sep), pdbPath.end());
+                pdbPath.append(L"/pdb/");
+                pdbPath.append(fileName);
+                pdbPath.append(L".pdb\0");
+            }
         }
 
         IDxcBlob* pdbBlob = nullptr;
@@ -1823,6 +1841,7 @@ namespace D3D12Lite
         }
 
         // SafeRelease(shaderBlob);
+        SafeRelease(shaderHash);
         SafeRelease(pdbBlob);
         SafeRelease(errors);
         SafeRelease(compilationResults);
