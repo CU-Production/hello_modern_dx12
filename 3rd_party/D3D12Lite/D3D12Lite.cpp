@@ -1819,31 +1819,9 @@ namespace D3D12Lite
         // shader->mShaderBlob = shaderBlob;
 
         // load file to active renderdoc shader debug feature
-        {
-            FILE* fp = nullptr;
-
-            _wfopen_s(&fp, dxilPath.c_str(), L"rb");
-
-            assert(fp);
-
-            fseek(fp, 0, SEEK_END);
-            size_t file_size = ftell(fp);
-            rewind(fp);
-
-            assert(file_size > 0);
-
-            uint8_t* dxilBindata = (uint8_t*)malloc(file_size);
-            fread(dxilBindata, file_size, 1, fp);
-
-            fclose(fp);
-
-            IDxcBlob* dxilShaderBlob;
-            dxcUtils->CreateBlob(dxilBindata, file_size, DXC_CP_ACP, (IDxcBlobEncoding**)&dxilShaderBlob);
-            // dxcUtils->LoadFile(dxilPath.c_str(), nullptr, (IDxcBlobEncoding**)&dxilShaderBlob);
-            shader->mShaderBlob = dxilShaderBlob;
-
-            free(dxilBindata);
-        }
+        IDxcBlob* dxilShaderBlob;
+        dxcUtils->LoadFile(dxilPath.c_str(), nullptr, (IDxcBlobEncoding**)&dxilShaderBlob);
+        shader->mShaderBlob = dxilShaderBlob;
 
         SafeRelease(dxcUtils);
 
