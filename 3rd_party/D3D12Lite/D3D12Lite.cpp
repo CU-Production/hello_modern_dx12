@@ -1740,9 +1740,10 @@ namespace D3D12Lite
         arguments.push_back(desc.mEntryPoint.c_str());
         arguments.push_back(L"-T");
         arguments.push_back(target);
-        arguments.push_back(L"-Zi");
+        arguments.push_back(L"-Zi"); // DXC_ARG_DEBUG
         arguments.push_back(L"-WX");
-        arguments.push_back(L"-Qstrip_reflect");
+        arguments.push_back(L"-Od"); // DXC_ARG_SKIP_OPTIMIZATIONS
+        // arguments.push_back(L"-Qstrip_reflect");
 
         IDxcResult* compilationResults = nullptr;
         dxcCompiler->Compile(&sourceBuffer, arguments.data(), static_cast<uint32_t>(arguments.size()), dxcIncludeHandler, IID_PPV_ARGS(&compilationResults));
@@ -1774,6 +1775,8 @@ namespace D3D12Lite
         dxilPath.append(SHADER_OUTPUT_PATH);
         dxilPath.append(desc.mShaderName);
         dxilPath.erase(dxilPath.end() - 5, dxilPath.end());
+        dxilPath.append(L".");
+        dxilPath.append(target);
         dxilPath.append(L".dxil");
 
         pdbPath = dxilPath;
@@ -1805,15 +1808,44 @@ namespace D3D12Lite
             fclose(fp);
         }
 
+        SafeRelease(shaderBlob);
         SafeRelease(pdbBlob);
         SafeRelease(errors);
         SafeRelease(compilationResults);
         SafeRelease(dxcIncludeHandler);
         SafeRelease(dxcCompiler);
-        SafeRelease(dxcUtils);
 
         std::unique_ptr<Shader> shader = std::make_unique<Shader>();
-        shader->mShaderBlob = shaderBlob;
+        // shader->mShaderBlob = shaderBlob;
+
+        // load file to active renderdoc shader debug feature
+        {
+            FILE* fp = nullptr;
+
+            _wfopen_s(&fp, dxilPath.c_str(), L"rb");
+
+            assert(fp);
+
+            fseek(fp, 0, SEEK_END);
+            size_t file_size = ftell(fp);
+            rewind(fp);
+
+            assert(file_size > 0);
+
+            uint8_t* dxilBindata = (uint8_t*)malloc(file_size);
+            fread(dxilBindata, file_size, 1, fp);
+
+            fclose(fp);
+
+            IDxcBlob* dxilShaderBlob;
+            dxcUtils->CreateBlob(dxilBindata, file_size, DXC_CP_ACP, (IDxcBlobEncoding**)&dxilShaderBlob);
+            // dxcUtils->LoadFile(dxilPath.c_str(), nullptr, (IDxcBlobEncoding**)&dxilShaderBlob);
+            shader->mShaderBlob = dxilShaderBlob;
+
+            free(dxilBindata);
+        }
+
+        SafeRelease(dxcUtils);
 
         return shader;
     }
